@@ -133,13 +133,12 @@ void print_board()
 	}
 }
 
-//보드에 2를 랜덤한 위치에 넣어주는 함수
+//보드에 2, 4를 랜덤한 위치에 넣어주는 함수
 void random_set()
 {
 	int width = 0;
 	int length = 0;
 	int check_0 = 0;
-	srand(time(NULL));
 	while (1)
 	{
 		//랜덤으로 넣기 전에 보드가 다 차있는지 확인
@@ -159,7 +158,12 @@ void random_set()
 		length = rand() % SIZE; //랜덤한 위치 하나를 지정
 		if (board[length][width] == 0) //이 위치가 0일 경우 2를 넣고서 반복을 나감
 		{
-			board[length][width] = 2;
+			srand(time(NULL));
+			if (70 > rand() % 100)
+				board[length][width] = 2;
+			else
+				board[length][width] = 4;
+
 			break;
 		}
 
