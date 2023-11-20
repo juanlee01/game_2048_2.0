@@ -2,7 +2,7 @@
 //이현규 timer 추가 버전
 
 //2.1 랜덤생성숫자 추가.
-//2.2 메모장 이름 시간 입력 기능 추가중
+//2.2 메모장 이름 시간 저장.
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<stdlib.h>
@@ -49,7 +49,7 @@ int main()
 
 	char name[100];
 	int key = 0;
-	int end_time = 0;
+	double end_time = 0;
 	//게임 시작 셋팅
 	random_set();
 	random_set();
@@ -87,7 +87,7 @@ int main()
 		random_set();
 		system("cls"); //다음보드 출력을 위한 콘솔 지움
 		print_board();
-		printf("%.2f 초\n", end_time);
+		printf("%.2f 초\n", elapsed_time());
 		//게임종료확인
 		if (check_gameover() == 1)
 		{
@@ -101,7 +101,8 @@ int main()
 			printf("congratulations! 2048!\n");
 			printf("랭킹에 저장할 이름을 입력해주세요 >> ");
 			gets(name);
-			fputc(name, stream);
+			fprintf(stream, "%s %f", name, end_time);
+			//fputs(name, stream);
 			printf("종료하려면 ESC를 눌러주세요. ");
 		}
 		
