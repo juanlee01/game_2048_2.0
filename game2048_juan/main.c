@@ -1,3 +1,9 @@
+//게임2048
+//이현규 timer 추가 버전
+
+//2.1 랜덤생성숫자 추가.
+//2.2 메모장 이름 시간 입력 기능 추가중
+#define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -31,7 +37,7 @@ void board_add(int* array1, int* array2);
 
 //보드 배열
 int board[SIZE][SIZE] = {
-	{0,0,0,0},
+	{1024,1024,0,0},
 	{0,0,0,0},
 	{0,0,0,0},
 	{0,0,0,0}
@@ -39,7 +45,11 @@ int board[SIZE][SIZE] = {
 
 int main()
 {
+	FILE* stream;
+
+	char name[100];
 	int key = 0;
+	int end_time = 0;
 	//게임 시작 셋팅
 	random_set();
 	random_set();
@@ -47,6 +57,7 @@ int main()
 
 	start_timer();//타이머 시작
 
+	stream = fopen("ranking.txt", "w");
 	while (1)
 	{
 		key = _getch();
@@ -76,20 +87,27 @@ int main()
 		random_set();
 		system("cls"); //다음보드 출력을 위한 콘솔 지움
 		print_board();
+		printf("%.2f 초\n", end_time);
 		//게임종료확인
 		if (check_gameover() == 1)
 		{
+			end_time = elapsed_time();
 			printf("G A M E O V E R!\n\n");
 			printf("종료하려면 ESC를 눌러주세요. ");
 		}
 		if (check_2048() == 1)
 		{
-			printf("congratulations! 2048!");
+			end_time = elapsed_time();
+			printf("congratulations! 2048!\n");
+			printf("랭킹에 저장할 이름을 입력해주세요 >> ");
+			gets(name);
+			fputc(name, stream);
 			printf("종료하려면 ESC를 눌러주세요. ");
 		}
-
-		printf("%.2f 초\n", elapsed_time());
+		
+		
 	}
+	fclose(stream);
 }
 
 //보드를 출력해주는 함수
