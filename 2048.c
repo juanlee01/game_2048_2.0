@@ -4,6 +4,11 @@
 #include<conio.h>
 #include<windows.h>
 
+time_t start_time;
+double get_current_time();
+void start_timer();
+double elapsed_time();
+
 void random_set();
 void print_board();
 void gotoxy(int x, int y);
@@ -39,6 +44,8 @@ int main()
 	random_set();
 	random_set();
 	print_board();
+
+	start_timer();//타이머 시작
 
 	while (1)
 	{
@@ -80,6 +87,8 @@ int main()
 			printf("congratulations! 2048!");
 			printf("종료하려면 ESC를 눌러주세요. ");
 		}
+
+		printf("%.2f 초\n", elapsed_time());
 	}
 }
 
@@ -468,3 +477,20 @@ int check_gameover()
 	}
 	return 1;
 }
+
+//현재 시간 반환
+double get_current_time()
+{
+	return(double)clock()/CLOCKS_PER_SEC;
+}
+
+//타이머 시작
+void start_timer() {
+    start_time = time(NULL);
+}
+
+//현재 경과 시간을 반환하는 함수
+double elapsed_time() {
+    return difftime(time(NULL), start_time);
+}
+
