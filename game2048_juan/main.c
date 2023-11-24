@@ -3,12 +3,16 @@
 
 //2.1 랜덤생성숫자 추가.
 //2.2 메모장 이름 시간 저장.
+//2.3 메모장 이름 시간 불러옴, 게임 종료 순위 정렬하여 후 저장
 #define _CRT_SECURE_NO_WARNINGS
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
 #include<conio.h>
 #include<windows.h>
+
+typedef struct rank RANK;
 
 time_t start_time;
 double get_current_time();
@@ -16,6 +20,7 @@ void start_timer();
 double elapsed_time();
 
 void random_set();
+void print_2048();
 void print_board();
 void gotoxy(int x, int y);
 int check_gameover();
@@ -24,6 +29,10 @@ int check_2048();
 void slide_board(int direction);
 void board_sort(int direction);
 void board_add(int* array1, int* array2);
+
+void Bubble_Sort(RANK arr[]);
+void Stuctrank_Reset(RANK arr[]);
+void save_Rank(FILE* RT, RANK arr[]);
 
 #define SIZE 4		//보드크기
 #define XBOARD 15	//보드위치 X,Y
@@ -43,13 +52,41 @@ int board[SIZE][SIZE] = {
 	{0,0,0,0}
 };
 
+typedef struct rank
+{
+	char name[20];
+	//int rankNumber;
+	double timeRecord;
+}RANK;
+
 int main()
 {
-	FILE* stream;
+	//파일 포인터 선언
+	FILE* ranktxt;
 
 	char name[100];
 	int key = 0;
 	double end_time = 0;
+	RANK ranking[12];
+	
+	//랭크 파일 오픈
+	//파일이 끝날 때까지 랭킹 구조체에 읽어옴.
+	ranktxt = fopen("ranking.txt", "r");
+	Stuctrank_Reset(ranking);
+
+	int i = 0;
+	for (int i = 1; i < 12; i++)
+	{
+		fscanf(ranktxt, "%s %lf\n", ranking[i].name, &ranking[i].timeRecord);
+	}
+	fclose(ranktxt);
+	//while (fgetc(ranktxt) != EOF)
+	//{
+	//	fscanf(ranktxt, "%d %s %f\n", &ranking[i].rankNumber, ranking[i].name, &ranking[i].timeRecord);
+	//	//printf("공백으로 분리 : %d %f %s\n", nCount, fRatio, strDesc);
+	//	i++;
+	//}	
+
 	//게임 시작 셋팅
 	random_set();
 	random_set();
@@ -57,7 +94,8 @@ int main()
 
 	start_timer();//타이머 시작
 
-	stream = fopen("ranking.txt", "w");
+	
+	
 	while (1)
 	{
 		key = _getch();
@@ -97,32 +135,43 @@ int main()
 		}
 		if (check_2048() == 1)
 		{
+			ranktxt = fopen("ranking.txt", "w");
 			end_time = elapsed_time();
+			ranking[11].timeRecord = end_time;
 			printf("congratulations! 2048!\n");
 			printf("랭킹에 저장할 이름을 입력해주세요 >> ");
-			gets(name);
-			fprintf(stream, "%s %f", name, end_time);
-			//fputs(name, stream);
+			gets(ranking[11].name);
+			
+
+			//fprintf(ranktxt, "%s %f", name, end_time);
+			Bubble_Sort(ranking);
+			//fputs(name, ranktxt);
+			save_Rank(ranktxt, ranking);
 			printf("종료하려면 ESC를 눌러주세요. ");
+			fclose(ranktxt);
 		}
 		
 		
 	}
-	fclose(stream);
+	
 }
-
-//보드를 출력해주는 함수
-void print_board()
+ 
+//게임 이름 출력 함수
+void print_2048()
 {
-	int z = 1;
-	//게임 이름 출력
+	
 	gotoxy(XBOARD + 6, 2);
 	printf("┌─┐┌─┐│ │┌─┐\n");
 	gotoxy(XBOARD + 6, 3);
 	printf("┌─┘│ │└─┤├─┤\n");
 	gotoxy(XBOARD + 6, 4);
 	printf("└──└─┘  │└─┘\n");
-
+}
+//보드를 출력해주는 함수
+void print_board()
+{
+	int z = 1;
+	print_2048();
 	//보드 출력
 	gotoxy(XBOARD, YBOARD);
 	printf("┌─────┬─────┬─────┬─────┐\n");
@@ -517,3 +566,50 @@ double elapsed_time() {
 	return difftime(time(NULL), start_time);
 }
 
+void Bubble_Sort(RANK arr[]) {
+	RANK tmp;
+	int len=13;
+	/*for (int i = 0; i < 11; i++)
+	{
+		if (arr[i].timeRecord == 0)
+		{
+			len = i - 1;
+			break;
+		}
+	}*/
+	for (int i = 1; i < len - 1; ++i) {
+		for (int j = 1; j < len - i - 1; ++j) {
+			if (arr[j].timeRecord > arr[j + 1].timeRecord) {
+				tmp = arr[j];
+				arr[j] = arr[j + 1];
+				arr[j + 1] = tmp;
+			}
+		}
+	}
+}
+
+void Stuctrank_Reset(RANK arr[]) 
+{
+	for (int i = 0; i < 12; i++)
+	{
+		*(arr[i].name) = NULL;
+		//arr[i].rankNumber = i;
+		arr[i].timeRecord = 9999999999999999999;
+
+	}
+}
+
+//txt 파일로 순위를 저장하는 함수
+//배열에 10번째, 1부터 10까지만 저장함.
+void save_Rank(FILE* RT, RANK arr[])
+{
+	for (int i = 1; i < 11; i++)
+	{
+		if(arr[i].timeRecord != 9999999999999999999)
+			fprintf(RT, "%s %lf\n", arr[i].name, arr[i].timeRecord);
+	}
+}
+void print_Rank()  
+{
+	printf("");
+}
