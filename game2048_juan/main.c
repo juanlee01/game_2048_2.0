@@ -5,30 +5,53 @@
 //2.2 메모장 이름 시간 저장.
 //2.3 메모장 이름 시간 불러옴, 게임 종료 순위 정렬하여 후 저장.
 //2.4 순위표 출력 함수 작성.
+//2.5 숫자별 색깔 지정.
 #define _CRT_SECURE_NO_WARNINGS
 
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
 #include<conio.h>
-#include<windows.h>
+#include<Windows.h>
 
+//랭크를 저장할 구조체 선언
 typedef struct rank
 {
 	char name[20];
-	//int rankNumber;
 	double timeRecord;
 }RANK;
+enum ColorType {
+	BLACK,  	//0
+	darkBLUE,	//1
+	DarkGreen,	//2
+	darkSkyBlue,    //3
+	DarkRed,  	//4
+	DarkPurple,	//5
+	DarkYellow,	//6
+	GRAY,		//7
+	DarkGray,	//8
+	BLUE,		//9
+	GREEN,		//10
+	SkyBlue,	//11
+	RED,		//12
+	PURPLE,		//13
+	YELLOW,		//14
+	WHITE		//15
+} COLOR;
+
 
 time_t start_time;
 double get_current_time();
 void start_timer();
 double elapsed_time();
 
+void textcolor(int colorNum);
 void random_set();
 void print_2048();
 void print_board();
 void print_Rank(RANK arr[]);
+void change_2color(int x);
+
 void gotoxy(int x, int y);
 
 int check_gameover();
@@ -65,7 +88,6 @@ int main()
 	//파일 포인터 선언
 	FILE* ranktxt;
 
-	char name[100];
 	int key = 0;
 	double end_time = 0;
 	RANK ranking[12];
@@ -129,16 +151,20 @@ int main()
 			break;
 		}
 		random_set();
+
 		system("cls"); //다음보드 출력을 위한 콘솔 지움
 		print_2048();
 		print_board();
 		gotoxy(XBOARD, YBOARD+10);
 		printf("%.2f sec\n", elapsed_time());
+
 		//게임종료확인
 		if (check_gameover() == 1)
 		{
 			end_time = elapsed_time();
+			gotoxy(XBOARD, YBOARD + 11);
 			printf("G A M E O V E R!\n\n");
+			gotoxy(XBOARD, YBOARD + 12);
 			printf("종료하려면 ESC를 눌러주세요. ");
 		}
 		if (check_2048() == 1)
@@ -146,16 +172,14 @@ int main()
 			ranktxt = fopen("ranking.txt", "w");
 			end_time = elapsed_time();
 			ranking[11].timeRecord = end_time; 
+
 			gotoxy(XBOARD, YBOARD + 11);
 			printf("congratulations! 2048!\n");
 			gotoxy(XBOARD, YBOARD + 12);
 			printf("랭킹에 저장할 이름을 입력해주세요 >> ");
 			gets(ranking[11].name);
 			
-
-			//fprintf(ranktxt, "%s %f", name, end_time);
 			Bubble_Sort(ranking);
-			//fputs(name, ranktxt);
 			system("cls"); 
 			print_2048();
 			print_Rank(ranking);
@@ -198,7 +222,8 @@ void print_board()
 			if (board[i][j] == 0)
 				printf("│  ·  ");
 			else
-				printf("│ %4d", board[i][j]);
+				change_2color(board[i][j]);
+				//printf("│ %4d", board[i][j]);
 		}
 		printf("│");
 		z += 1;
@@ -213,6 +238,51 @@ void print_board()
 		printf("├─────┼─────┼─────┼─────┤\n");
 		z += 1;
 	}
+}
+//2의 배수별 글자 색 변경 함수
+void change_2color(int x)
+{
+	printf("│ ");
+	switch (x)
+	{
+		case 2:
+			textcolor(WHITE);
+			break;
+		case 4:
+			textcolor(YELLOW);
+			break;
+		case 8:
+			textcolor(PURPLE);
+			break;
+		case 16:
+			textcolor(RED);
+			break;
+		case 32:
+			textcolor(SkyBlue);
+			break;
+		case 64:
+			textcolor(GREEN);
+			break;
+		case 128:
+			textcolor(BLUE);
+			break;
+		case 256:
+			textcolor(GRAY);
+			break;
+		case 512:
+			textcolor(DarkYellow);
+			break;
+		case 1024:
+			textcolor(DarkRed);
+			break;
+		case 2048:
+			textcolor(darkSkyBlue);
+			break;
+		default:
+			break;
+	}
+	printf("%4d", x);
+	textcolor(WHITE);
 }
 //랭킹 출력해주는 함수
 void print_Rank(RANK arr[])
@@ -599,19 +669,12 @@ void start_timer() {
 //현재 경과 시간을 반환하는 함수
 double elapsed_time() {
 	return difftime(time(NULL), start_time);
-}
+} 
 
+//랭킹 배열을 버블 정렬하는 함수
 void Bubble_Sort(RANK arr[]) {
 	RANK tmp;
 	int len=13;
-	/*for (int i = 0; i < 11; i++)
-	{
-		if (arr[i].timeRecord == 0)
-		{
-			len = i - 1;
-			break;
-		}
-	}*/
 	for (int i = 1; i < len - 1; ++i) {
 		for (int j = 1; j < len - i - 1; ++j) {
 			if (arr[j].timeRecord > arr[j + 1].timeRecord) {
@@ -623,6 +686,7 @@ void Bubble_Sort(RANK arr[]) {
 	}
 }
 
+//랭킹 배열 초기화 함수
 void Stuctrank_Reset(RANK arr[]) 
 {
 	for (int i = 0; i < 12; i++)
@@ -643,4 +707,9 @@ void save_Rank(FILE* RT, RANK arr[])
 		if(arr[i].timeRecord != 9999999999999999999)
 			fprintf(RT, "%s %lf\n", arr[i].name, arr[i].timeRecord);
 	}
+}
+
+//글자 색 변경 함수
+void textcolor(int colorNum) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNum);
 }
