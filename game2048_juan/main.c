@@ -110,10 +110,8 @@ int main()
 	print_Rank(ranking);
 	gotoxy(XBOARD - 4, YBOARD + 13);
 	printf("시작하려면 아무키나 눌러주세요.");
-	while (!_kbhit())
-	{
+	while (!_kbhit()) {	}
 
-	}
 	//게임 시작 셋팅
 	random_set();
 	random_set();
