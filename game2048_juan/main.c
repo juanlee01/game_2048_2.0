@@ -282,6 +282,7 @@ void change_2color(int x)
 	printf("%4d", x);
 	textcolor(WHITE);
 }
+
 //랭킹 출력해주는 함수
 void print_Rank(RANK arr[])
 {
